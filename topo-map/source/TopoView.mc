@@ -58,7 +58,8 @@ class TopoView extends WatchUi.View {
 
     // What the user is looking at
     private var _zoom as Number = 1;
-    private var _fix as Boolean = false;
+    private var _fix as Boolean = false;     // we have a position (maybe only last-known)
+    private var _live as Boolean = false;    // ...and it is a current GPS fix
     private var _mx as Float = 0.0;      // position, map metres
     private var _my as Float = 0.0;
 
@@ -147,20 +148,23 @@ class TopoView extends WatchUi.View {
 
     function setPosition(info as Position.Info) as Void {
         var p = info.position;
-        if (p == null || info.accuracy < Position.QUALITY_POOR) {
+        if (p == null) {
             return;
         }
+        // last-known positions are used to centre the map while a fresh fix is acquired
+        var live = info.accuracy >= Position.QUALITY_POOR;
         var deg = p.toDegrees();
         var mx = ((deg[1] - _lon0) * _kx).toFloat();
         var my = ((deg[0] - _lat0) * 110540.0).toFloat();
         // standing still: skip the redraw unless we moved at least a pixel
         var px = _w.toFloat() / ZOOMS[_zoom];
-        if (_fix && (mx - _mx).abs() * px < 1 && (my - _my).abs() * px < 1) {
+        if (_fix && live == _live && (mx - _mx).abs() * px < 1 && (my - _my).abs() * px < 1) {
             return;
         }
         _mx = mx;
         _my = my;
         _fix = true;
+        _live = live;
         // re-render once we have moved 15% of the screen away from the rendered centre
         var limit = ZOOMS[_zoom] * 0.15;
         var c = viewCentre();
@@ -515,7 +519,7 @@ class TopoView extends WatchUi.View {
         crossLines(dc, c, INK, 3);
         dc.fillCircle(c, c, 2.5);
 
-        var msg = !_fix ? "NO GPS" : (!inside() ? "OUTSIDE MAP" : null);
+        var msg = !_live ? "SEARCHING GPS" : (!inside() ? "OUTSIDE MAP" : null);
         if (msg != null) {
             var y = c * 0.36;
             var tw = dc.getTextWidthInPixels(msg, Graphics.FONT_XTINY) + c * 0.12;

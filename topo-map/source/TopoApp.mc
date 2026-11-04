@@ -29,6 +29,7 @@ class TopoApp extends Application.AppBase {
         var v = new TopoView();
         _view = v;
         v.setKeepAwake(!batterySaver());
+        v.setPosition(Position.getInfo());   // centre on the last known position straight away
         return [v, new TopoDelegate(v)];
     }
 
