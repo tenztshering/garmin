@@ -221,8 +221,17 @@ class TopoView extends WatchUi.View {
     }
 
     // Centre of the view: your position, or the map centre when there is no usable fix.
+    // Clamped so the view never extends past the map's edge (no blank areas at wide zooms);
+    // the crosshair then moves off-centre to your actual position instead.
     private function viewCentre() as Array<Float> {
-        return (_fix && inside()) ? [_mx, _my] : [0.0, 0.0];
+        if (!(_fix && inside())) { return [0.0, 0.0]; }
+        var lim = _half - ZOOMS[_zoom] / 2.0;
+        if (lim < 0) { lim = 0.0; }
+        return [clamp(_mx, lim), clamp(_my, lim)];
+    }
+
+    private function clamp(v as Float, lim as Float) as Float {
+        return (v > lim) ? lim : ((v < -lim) ? -lim : v);
     }
 
     private function startRender() as Void {
@@ -543,14 +552,18 @@ class TopoView extends WatchUi.View {
         drawNorth(dc, w);
         drawScale(dc, w, ZOOMS[_zoom]);
         drawAltitude(dc, w);
-        drawCrosshair(dc, c);
+        // crosshair on your position: the screen centre, unless the view is clamped at a map edge
+        var vc = viewCentre();
+        var pk = w.toFloat() / ZOOMS[_zoom];
+        var here = (_fix && inside()) ? [c + (_mx - vc[0]) * pk, c - (_my - vc[1]) * pk] : [c, c];
+        drawCrosshair(dc, c, here[0], here[1]);
     }
 
     // Your position: a crosshair on a paper halo so it always separates from the map.
-    private function drawCrosshair(dc as Graphics.Dc, c as Float) as Void {
-        crossLines(dc, c, PAPER, 7);
-        crossLines(dc, c, INK, 3);
-        dc.fillCircle(c, c, 2.5);
+    private function drawCrosshair(dc as Graphics.Dc, c as Float, x as Float, y as Float) as Void {
+        crossLines(dc, x, y, c * 0.07, PAPER, 7);
+        crossLines(dc, x, y, c * 0.07, INK, 3);
+        dc.fillCircle(x, y, 2.5);
 
         var msg = null;
         var bg = INK;
@@ -562,25 +575,24 @@ class TopoView extends WatchUi.View {
             msg = "OUTSIDE MAP";
         }
         if (msg != null) {
-            var y = c * 0.36;
+            var py = c * 0.36;
             var tw = dc.getTextWidthInPixels(msg, Graphics.FONT_XTINY) + c * 0.12;
             var th = c * 0.13;
             dc.setColor(bg, Graphics.COLOR_TRANSPARENT);
-            dc.fillRoundedRectangle(c - tw / 2, y - th / 2, tw, th, th / 2);
+            dc.fillRoundedRectangle(c - tw / 2, py - th / 2, tw, th, th / 2);
             dc.setColor(PAPER, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(c, y, Graphics.FONT_XTINY, msg, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            dc.drawText(c, py, Graphics.FONT_XTINY, msg, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
     }
 
-    private function crossLines(dc as Graphics.Dc, c as Float, color as Number, pen as Number) as Void {
-        var r = c * 0.07;
+    private function crossLines(dc as Graphics.Dc, x as Float, y as Float, r as Float, color as Number, pen as Number) as Void {
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(pen);
-        dc.drawCircle(c, c, r);
-        dc.drawLine(c - r * 2.1, c, c - r, c);
-        dc.drawLine(c + r, c, c + r * 2.1, c);
-        dc.drawLine(c, c - r * 2.1, c, c - r);
-        dc.drawLine(c, c + r, c, c + r * 2.1);
+        dc.drawCircle(x, y, r);
+        dc.drawLine(x - r * 2.1, y, x - r, y);
+        dc.drawLine(x + r, y, x + r * 2.1, y);
+        dc.drawLine(x, y - r * 2.1, x, y - r);
+        dc.drawLine(x, y + r, x, y + r * 2.1);
     }
 
     // Current altitude, top centre: "2340 M", or "-- M" until the first reading.
