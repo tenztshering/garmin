@@ -3,6 +3,7 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Math;
 import Toybox.Position;
+import Toybox.System;
 import Toybox.Timer;
 import Toybox.WatchUi;
 
@@ -60,6 +61,8 @@ class TopoView extends WatchUi.View {
     private var _zoom as Number = 1;
     private var _fix as Boolean = false;     // we have a position (maybe only last-known)
     private var _live as Boolean = false;    // ...and it is a current GPS fix
+    private var _searchSince as Number = System.getTimer();
+    const SEARCH_MS = 90000;                 // after this long without a fix, say NO GPS
     private var _mx as Float = 0.0;      // position, map metres
     private var _my as Float = 0.0;
 
@@ -116,10 +119,8 @@ class TopoView extends WatchUi.View {
     }
 
     function onShow() as Void {
-        if (_awake) {
-            keepAwake();
-            _wake.start(method(:keepAwake), 5000, true);
-        }
+        tick();
+        _wake.start(method(:tick), 5000, true);
         if (_buf != null && _bzoom == -1) {
             startRender();
         }
@@ -128,16 +129,25 @@ class TopoView extends WatchUi.View {
     // Off in battery saver mode. Takes effect immediately.
     function setKeepAwake(on as Boolean) as Void {
         _awake = on;
-        _wake.stop();
         if (on) {
-            keepAwake();
-            _wake.start(method(:keepAwake), 5000, true);
+            lightOn();
+        }
+    }
+
+    // Every 5 s while the map is open: keep the screen lit (unless battery saver), and
+    // refresh the GPS status so SEARCHING turns into NO GPS when it times out.
+    function tick() as Void {
+        if (_awake) {
+            lightOn();
+        }
+        if (!_live) {
+            WatchUi.requestUpdate();
         }
     }
 
     // Keep the screen lit while the map is open (stopped in onHide, i.e. when you press BACK).
     // On AMOLED the watch refuses after a while to prevent burn-in; then we just try again later.
-    function keepAwake() as Void {
+    private function lightOn() as Void {
         if (Attention has :backlight) {
             try {
                 Attention.backlight(true);
@@ -160,6 +170,9 @@ class TopoView extends WatchUi.View {
         var px = _w.toFloat() / ZOOMS[_zoom];
         if (_fix && live == _live && (mx - _mx).abs() * px < 1 && (my - _my).abs() * px < 1) {
             return;
+        }
+        if (_live && !live) {
+            _searchSince = System.getTimer();    // lost the fix: search again before saying NO GPS
         }
         _mx = mx;
         _my = my;
@@ -519,12 +532,20 @@ class TopoView extends WatchUi.View {
         crossLines(dc, c, INK, 3);
         dc.fillCircle(c, c, 2.5);
 
-        var msg = !_live ? "SEARCHING GPS" : (!inside() ? "OUTSIDE MAP" : null);
+        var msg = null;
+        var bg = INK;
+        if (!_live) {
+            var searching = System.getTimer() - _searchSince < SEARCH_MS;
+            msg = searching ? "SEARCHING GPS" : "NO GPS";
+            bg = searching ? 0x2E9E44 : 0xD32F2F;
+        } else if (!inside()) {
+            msg = "OUTSIDE MAP";
+        }
         if (msg != null) {
             var y = c * 0.36;
             var tw = dc.getTextWidthInPixels(msg, Graphics.FONT_XTINY) + c * 0.12;
             var th = c * 0.13;
-            dc.setColor(INK, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(bg, Graphics.COLOR_TRANSPARENT);
             dc.fillRoundedRectangle(c - tw / 2, y - th / 2, tw, th, th / 2);
             dc.setColor(PAPER, Graphics.COLOR_TRANSPARENT);
             dc.drawText(c, y, Graphics.FONT_XTINY, msg, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
