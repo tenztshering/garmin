@@ -8,7 +8,15 @@ import json, math, os, sys
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(HERE, "..", "resources", "data", "topo.json")))
+DATA = os.path.join(HERE, "..", "resources", "data")
+D = json.load(open(os.path.join(DATA, "topo.json")))
+# merge the vector tiles (make_topo.py splits lines into v_<row>_<col>_<major|minor>.json)
+D["k"] = [[] for _ in range(6)]
+for f in sorted(os.listdir(DATA)):
+    if f.startswith("v_") and f.endswith(".json"):
+        t = json.load(open(os.path.join(DATA, f)))
+        for i in range(6):
+            D["k"][i] += t["k"][i]
 OUT = sys.argv[1]
 SPAN = float(sys.argv[2]) if len(sys.argv) > 2 else 2000
 CX, CY = (float(sys.argv[3]), float(sys.argv[4])) if len(sys.argv) > 4 else (0.0, 0.0)
