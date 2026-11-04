@@ -65,6 +65,12 @@ class TopoView extends WatchUi.View {
     private var _searchSince as Number = System.getTimer();
     const SEARCH_MS = 90000;                 // after this long without a fix, say NO GPS
     private var _alt as Float? = null;       // metres, barometric if available
+    private var _heading as Float? = null;   // radians from true north, compass (or GPS course)
+    private var _gpsHeading as Float? = null;
+    private var _compass as Timer.Timer = new Timer.Timer();
+    // Sensor docs only say "true north referenced heading in radians"; standard compass
+    // convention is clockwise. If the arrow turns the wrong way on the watch, set this to -1.
+    const HEADING_SIGN = 1;
     private var _mx as Float = 0.0;      // position, map metres
     private var _my as Float = 0.0;
 
@@ -115,6 +121,7 @@ class TopoView extends WatchUi.View {
 
     function onHide() as Void {
         _wake.stop();
+        _compass.stop();
         _timer.stop();
         _rendering = false;
         _bzoom = -1;      // re-render when shown again
@@ -123,6 +130,7 @@ class TopoView extends WatchUi.View {
     function onShow() as Void {
         tick();
         _wake.start(method(:tick), 5000, true);
+        _compass.start(method(:compassTick), _awake ? 500 : 2000, true);
         if (_buf != null && _bzoom == -1) {
             startRender();
         }
@@ -131,6 +139,8 @@ class TopoView extends WatchUi.View {
     // Off in battery saver mode. Takes effect immediately.
     function setKeepAwake(on as Boolean) as Void {
         _awake = on;
+        _compass.stop();
+        _compass.start(method(:compassTick), on ? 500 : 2000, true);   // slower in battery saver
         if (on) {
             lightOn();
         }
@@ -145,6 +155,27 @@ class TopoView extends WatchUi.View {
         if (updateAltitude(null) || !_live) {
             WatchUi.requestUpdate();
         }
+    }
+
+    // Which way you face: the compass, or your GPS course while moving. Redraws on a 3 degree change.
+    function compassTick() as Void {
+        var h = Sensor.getInfo().heading;
+        if (h == null) { h = _gpsHeading; }
+        var old = _heading;
+        _heading = h;
+        if (h == null) {
+            if (old != null) { WatchUi.requestUpdate(); }
+            return;
+        }
+        if (old == null || angleDiff(h, old) > 0.05) {
+            WatchUi.requestUpdate();
+        }
+    }
+
+    private function angleDiff(a as Float, b as Float) as Float {
+        var d = (a - b).abs();
+        while (d > Math.PI) { d = (2 * Math.PI - d).abs(); }
+        return d.toFloat();
     }
 
     // Altitude from the barometric altimeter (instant), else from GPS once we have a fix.
@@ -175,6 +206,9 @@ class TopoView extends WatchUi.View {
         if (updateAltitude(info)) {
             WatchUi.requestUpdate();
         }
+        // GPS course is a fallback for the compass, and only meaningful while moving
+        var sp = info.speed;
+        _gpsHeading = (sp != null && sp > 0.5 && info.heading != null) ? info.heading : null;
         var p = info.position;
         if (p == null) {
             return;
@@ -563,6 +597,7 @@ class TopoView extends WatchUi.View {
     private function drawCrosshair(dc as Graphics.Dc, c as Float, x as Float, y as Float) as Void {
         crossLines(dc, x, y, c * 0.07, PAPER, 7);
         crossLines(dc, x, y, c * 0.07, INK, 3);
+        drawHeading(dc, x, y, c * 0.07);
         dc.fillCircle(x, y, 2.5);
 
         var msg = null;
@@ -583,6 +618,26 @@ class TopoView extends WatchUi.View {
             dc.setColor(PAPER, Graphics.COLOR_TRANSPARENT);
             dc.drawText(c, py, Graphics.FONT_XTINY, msg, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
+    }
+
+    // Blue pointer just outside the crosshair ring, in the direction you are facing.
+    private function drawHeading(dc as Graphics.Dc, x as Float, y as Float, r as Float) as Void {
+        var h = _heading;
+        if (h == null) { return; }
+        var a = HEADING_SIGN * h;
+        var sx = Math.sin(a);
+        var sy = Math.cos(a);
+        var tip = [x + sx * r * 2.5, y - sy * r * 2.5];
+        var mid = [x + sx * r * 1.2, y - sy * r * 1.2];
+        var hw = r * 0.65;
+        var pts = [tip, [mid[0] + sy * hw, mid[1] + sx * hw], [mid[0] - sy * hw, mid[1] - sx * hw]];
+        dc.setColor(PAPER, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(4);
+        dc.drawLine(pts[0][0], pts[0][1], pts[1][0], pts[1][1]);
+        dc.drawLine(pts[1][0], pts[1][1], pts[2][0], pts[2][1]);
+        dc.drawLine(pts[2][0], pts[2][1], pts[0][0], pts[0][1]);
+        dc.setColor(0x1565C0, Graphics.COLOR_TRANSPARENT);
+        dc.fillPolygon(pts);
     }
 
     private function crossLines(dc as Graphics.Dc, x as Float, y as Float, r as Float, color as Number, pen as Number) as Void {
