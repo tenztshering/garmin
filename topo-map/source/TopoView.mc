@@ -3,6 +3,7 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Math;
 import Toybox.Position;
+import Toybox.Sensor;
 import Toybox.System;
 import Toybox.Timer;
 import Toybox.WatchUi;
@@ -63,6 +64,7 @@ class TopoView extends WatchUi.View {
     private var _live as Boolean = false;    // ...and it is a current GPS fix
     private var _searchSince as Number = System.getTimer();
     const SEARCH_MS = 90000;                 // after this long without a fix, say NO GPS
+    private var _alt as Float? = null;       // metres, barometric if available
     private var _mx as Float = 0.0;      // position, map metres
     private var _my as Float = 0.0;
 
@@ -140,9 +142,22 @@ class TopoView extends WatchUi.View {
         if (_awake) {
             lightOn();
         }
-        if (!_live) {
+        if (updateAltitude(null) || !_live) {
             WatchUi.requestUpdate();
         }
+    }
+
+    // Altitude from the barometric altimeter (instant), else from GPS once we have a fix.
+    // Returns true if the shown value changed by a metre or more.
+    private function updateAltitude(info as Position.Info?) as Boolean {
+        var a = Sensor.getInfo().altitude;
+        if (a == null && info != null && info.altitude != null && info.accuracy >= Position.QUALITY_POOR) {
+            a = info.altitude;
+        }
+        if (a == null) { return false; }
+        var old = _alt;
+        _alt = a;
+        return old == null || (a - old).abs() >= 1.0;
     }
 
     // Keep the screen lit while the map is open (stopped in onHide, i.e. when you press BACK).
@@ -157,6 +172,9 @@ class TopoView extends WatchUi.View {
     }
 
     function setPosition(info as Position.Info) as Void {
+        if (updateAltitude(info)) {
+            WatchUi.requestUpdate();
+        }
         var p = info.position;
         if (p == null) {
             return;
@@ -477,6 +495,7 @@ class TopoView extends WatchUi.View {
         if (dx * dx + dy * dy < (w * 0.2) * (w * 0.2)) { return false; }          // crosshair
         if ((x - w * 0.16).abs() < w * 0.1 && (y - w * 0.27).abs() < w * 0.1) { return false; }   // north arrow
         if (y > w * 0.78 && (x - c).abs() < w * 0.25) { return false; }           // scale bar
+        if (y < w * 0.24 && (x - c).abs() < w * 0.2) { return false; }            // altitude + GPS status
         return true;
     }
 
@@ -523,6 +542,7 @@ class TopoView extends WatchUi.View {
         }
         drawNorth(dc, w);
         drawScale(dc, w, ZOOMS[_zoom]);
+        drawAltitude(dc, w);
         drawCrosshair(dc, c);
     }
 
@@ -561,6 +581,13 @@ class TopoView extends WatchUi.View {
         dc.drawLine(c + r, c, c + r * 2.1, c);
         dc.drawLine(c, c - r * 2.1, c, c - r);
         dc.drawLine(c, c + r, c, c + r * 2.1);
+    }
+
+    // Current altitude, top centre: "2340 M", or "-- M" until the first reading.
+    private function drawAltitude(dc as Graphics.Dc, w as Number) as Void {
+        var a = _alt;
+        var s = (a == null) ? "-- M" : a.toNumber().toString() + " M";
+        haloText(dc, w / 2.0, w * 0.11, _placeFont, s, 0);
     }
 
     // Red north arrow at the top left, on a paper disc.
