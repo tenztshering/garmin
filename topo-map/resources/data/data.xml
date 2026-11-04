@@ -1,3 +1,35 @@
 <resources>
     <jsonData id="Topo" filename="topo.json"/>
+    <jsonData id="v_0_0_major" filename="v_0_0_major.json"/>
+    <jsonData id="v_0_0_minor" filename="v_0_0_minor.json"/>
+    <jsonData id="v_0_1_major" filename="v_0_1_major.json"/>
+    <jsonData id="v_0_1_minor" filename="v_0_1_minor.json"/>
+    <jsonData id="v_0_2_major" filename="v_0_2_major.json"/>
+    <jsonData id="v_0_2_minor" filename="v_0_2_minor.json"/>
+    <jsonData id="v_0_3_major" filename="v_0_3_major.json"/>
+    <jsonData id="v_0_3_minor" filename="v_0_3_minor.json"/>
+    <jsonData id="v_1_0_major" filename="v_1_0_major.json"/>
+    <jsonData id="v_1_0_minor" filename="v_1_0_minor.json"/>
+    <jsonData id="v_1_1_major" filename="v_1_1_major.json"/>
+    <jsonData id="v_1_1_minor" filename="v_1_1_minor.json"/>
+    <jsonData id="v_1_2_major" filename="v_1_2_major.json"/>
+    <jsonData id="v_1_2_minor" filename="v_1_2_minor.json"/>
+    <jsonData id="v_1_3_major" filename="v_1_3_major.json"/>
+    <jsonData id="v_1_3_minor" filename="v_1_3_minor.json"/>
+    <jsonData id="v_2_0_major" filename="v_2_0_major.json"/>
+    <jsonData id="v_2_0_minor" filename="v_2_0_minor.json"/>
+    <jsonData id="v_2_1_major" filename="v_2_1_major.json"/>
+    <jsonData id="v_2_1_minor" filename="v_2_1_minor.json"/>
+    <jsonData id="v_2_2_major" filename="v_2_2_major.json"/>
+    <jsonData id="v_2_2_minor" filename="v_2_2_minor.json"/>
+    <jsonData id="v_2_3_major" filename="v_2_3_major.json"/>
+    <jsonData id="v_2_3_minor" filename="v_2_3_minor.json"/>
+    <jsonData id="v_3_0_major" filename="v_3_0_major.json"/>
+    <jsonData id="v_3_0_minor" filename="v_3_0_minor.json"/>
+    <jsonData id="v_3_1_major" filename="v_3_1_major.json"/>
+    <jsonData id="v_3_1_minor" filename="v_3_1_minor.json"/>
+    <jsonData id="v_3_2_major" filename="v_3_2_major.json"/>
+    <jsonData id="v_3_2_minor" filename="v_3_2_minor.json"/>
+    <jsonData id="v_3_3_major" filename="v_3_3_major.json"/>
+    <jsonData id="v_3_3_minor" filename="v_3_3_minor.json"/>
 </resources>

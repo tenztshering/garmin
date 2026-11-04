@@ -45,8 +45,9 @@ class TopoView extends WatchUi.View {
     const STEP_MS = 50;
 
     // Map data (see make_topo.py): per kind, encoded polyline pieces and packed bounding boxes.
-    private var _pieces as Array<Array<String>>;
-    private var _boxes as Array<Array<Number>>;
+    // Pieces and boxes of the vector tiles around the current view, merged per kind (see loadTiles).
+    private var _pieces as Array<Array<String>> = [];
+    private var _boxes as Array<Array<Number>> = [];
     private var _trees as Array<Number> = [];         // one per tree: (x << 12 | y) in 12-bit units
     private var _labels as Array<Array<Number>>;      // [x, y, elevation, angle]
     private var _places as Array<Array>;              // [x, y, name]
@@ -85,8 +86,6 @@ class TopoView extends WatchUi.View {
     function initialize() {
         View.initialize();
         var d = WatchUi.loadResource(Rez.JsonData.Topo) as Dictionary;
-        _pieces = d["k"] as Array<Array<String>>;
-        _boxes = d["b"] as Array<Array<Number>>;
         var tb = (d["tr"] as String).toUtf8Array();
         for (var i = 0; i + 3 < tb.size(); i += 4) {
             _trees.add((dec(tb[i], tb[i + 1]) << 12) | dec(tb[i + 2], tb[i + 3]));
@@ -235,12 +234,50 @@ class TopoView extends WatchUi.View {
         _bzoom = _zoom;
         _pass = 0;
         _piece = 0;
+        loadTiles();
         var bdc = (buf.get() as Graphics.BufferedBitmap).getDc();
         bdc.setColor(PAPER, PAPER);
         bdc.clear();
         if (!_rendering) {
             _rendering = true;
             _timer.start(method(:renderStep), STEP_MS, true);
+        }
+    }
+
+    // Load only the vector tiles that overlap the view (plus a margin for pieces that stick out),
+    // and the 20 m contours only at the zooms that draw them. Memory then depends on the view,
+    // not on the size of the map.
+    private function loadTiles() as Void {
+        _pieces = [[], [], [], [], [], []];
+        _boxes = [[], [], [], [], [], []];
+        var n = VectorTiles.PER_SIDE;
+        var tileM = 2.0 * _half / n;
+        var reach = ZOOMS[_bzoom] / 2.0 * 1.05 + 600;
+        var c0 = ((_bx - reach + _half) / tileM).toNumber();
+        var c1 = ((_bx + reach + _half) / tileM).toNumber();
+        var r0 = ((_half - (_by + reach)) / tileM).toNumber();
+        var r1 = ((_half - (_by - reach)) / tileM).toNumber();
+        var major = VectorTiles.major();
+        var minor = VectorTiles.minor();
+        for (var r = (r0 < 0 ? 0 : r0); r <= r1 && r < n; r++) {
+            for (var c = (c0 < 0 ? 0 : c0); c <= c1 && c < n; c++) {
+                addTile(major[r * n + c]);
+                if (_bzoom < 2) {
+                    addTile(minor[r * n + c]);
+                }
+            }
+        }
+    }
+
+    private function addTile(id as ResourceId) as Void {
+        var d = WatchUi.loadResource(id) as Dictionary;
+        var k = d["k"] as Array<Array<String>>;
+        var b = d["b"] as Array<Array<Number>>;
+        for (var i = 0; i < 6; i++) {
+            if (k[i].size() > 0) {
+                _pieces[i].addAll(k[i]);
+                _boxes[i].addAll(b[i]);
+            }
         }
     }
 
@@ -355,15 +392,15 @@ class TopoView extends WatchUi.View {
     // ------------------------------------------------------------------ shaded relief
 
     // Draws hill-shade bitmaps under everything else, scaled up with smoothing.
-    // 1-2 km zoom: the visible 128 px tiles, one per render step (loading is the slow part).
-    // 5-10 km zoom: a single low-resolution overview. Same return convention as drawPieces.
+    // 1-5 km zoom: the visible 128 px tiles, one per render step (loading is the slow part).
+    // 10 km zoom: a single low-resolution overview. Same return convention as drawPieces.
     private function drawShade(dc as Graphics.Dc) as Number {
         if (!(dc has :drawBitmap2)) { return -1; }
         var k = _w.toFloat() / ZOOMS[_bzoom];       // screen px per metre
         var c = _w / 2.0;
         var left = c + (-_half - _bx) * k;          // screen position of the map's north-west corner
         var top = c - (_half - _by) * k;
-        if (_bzoom >= 2) {
+        if (_bzoom >= 3) {                          // 10 km: one overview bitmap
             if (_piece > 0) { return -1; }
             _piece = 1;
             var scale = 2.0 * _half / ShadeTiles.OVERVIEW * k;

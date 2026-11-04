@@ -5,35 +5,99 @@
     <bitmap id="shade_0_3" filename="shade_0_3.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_0_4" filename="shade_0_4.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_0_5" filename="shade_0_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_0_6" filename="shade_0_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_0_7" filename="shade_0_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_0_8" filename="shade_0_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_0_9" filename="shade_0_9.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_1_0" filename="shade_1_0.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_1_1" filename="shade_1_1.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_1_2" filename="shade_1_2.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_1_3" filename="shade_1_3.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_1_4" filename="shade_1_4.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_1_5" filename="shade_1_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_1_6" filename="shade_1_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_1_7" filename="shade_1_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_1_8" filename="shade_1_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_1_9" filename="shade_1_9.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_2_0" filename="shade_2_0.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_2_1" filename="shade_2_1.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_2_2" filename="shade_2_2.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_2_3" filename="shade_2_3.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_2_4" filename="shade_2_4.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_2_5" filename="shade_2_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_2_6" filename="shade_2_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_2_7" filename="shade_2_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_2_8" filename="shade_2_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_2_9" filename="shade_2_9.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_3_0" filename="shade_3_0.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_3_1" filename="shade_3_1.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_3_2" filename="shade_3_2.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_3_3" filename="shade_3_3.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_3_4" filename="shade_3_4.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_3_5" filename="shade_3_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_3_6" filename="shade_3_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_3_7" filename="shade_3_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_3_8" filename="shade_3_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_3_9" filename="shade_3_9.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_4_0" filename="shade_4_0.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_4_1" filename="shade_4_1.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_4_2" filename="shade_4_2.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_4_3" filename="shade_4_3.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_4_4" filename="shade_4_4.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_4_5" filename="shade_4_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_4_6" filename="shade_4_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_4_7" filename="shade_4_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_4_8" filename="shade_4_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_4_9" filename="shade_4_9.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_5_0" filename="shade_5_0.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_5_1" filename="shade_5_1.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_5_2" filename="shade_5_2.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_5_3" filename="shade_5_3.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_5_4" filename="shade_5_4.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_5_5" filename="shade_5_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_5_6" filename="shade_5_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_5_7" filename="shade_5_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_5_8" filename="shade_5_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_5_9" filename="shade_5_9.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_0" filename="shade_6_0.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_1" filename="shade_6_1.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_2" filename="shade_6_2.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_3" filename="shade_6_3.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_4" filename="shade_6_4.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_5" filename="shade_6_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_6" filename="shade_6_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_7" filename="shade_6_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_8" filename="shade_6_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_6_9" filename="shade_6_9.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_0" filename="shade_7_0.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_1" filename="shade_7_1.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_2" filename="shade_7_2.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_3" filename="shade_7_3.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_4" filename="shade_7_4.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_5" filename="shade_7_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_6" filename="shade_7_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_7" filename="shade_7_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_8" filename="shade_7_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_7_9" filename="shade_7_9.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_0" filename="shade_8_0.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_1" filename="shade_8_1.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_2" filename="shade_8_2.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_3" filename="shade_8_3.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_4" filename="shade_8_4.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_5" filename="shade_8_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_6" filename="shade_8_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_7" filename="shade_8_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_8" filename="shade_8_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_8_9" filename="shade_8_9.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_0" filename="shade_9_0.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_1" filename="shade_9_1.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_2" filename="shade_9_2.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_3" filename="shade_9_3.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_4" filename="shade_9_4.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_5" filename="shade_9_5.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_6" filename="shade_9_6.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_7" filename="shade_9_7.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_8" filename="shade_9_8.png" dithering="none" automaticPalette="false"/>
+    <bitmap id="shade_9_9" filename="shade_9_9.png" dithering="none" automaticPalette="false"/>
     <bitmap id="shade_overview" filename="shade_overview.png" dithering="none" automaticPalette="false"/>
 </drawables>
