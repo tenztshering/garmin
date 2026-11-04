@@ -1,0 +1,6 @@
+<strings>
+    <string id="AppName">Topo</string>
+    <string id="Settings">Settings</string>
+    <string id="BatterySaver">Battery saver</string>
+    <string id="BatterySaverSub">GPS only, screen sleeps</string>
+</strings>

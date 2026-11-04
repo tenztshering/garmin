@@ -1,0 +1,3 @@
+<properties>
+    <property id="BatterySaver" type="boolean">false</property>
+</properties>
