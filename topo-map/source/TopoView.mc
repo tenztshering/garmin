@@ -221,17 +221,9 @@ class TopoView extends WatchUi.View {
     }
 
     // Centre of the view: your position, or the map centre when there is no usable fix.
-    // Clamped so the view never extends past the map's edge (no blank areas at wide zooms);
-    // the crosshair then moves off-centre to your actual position instead.
+    // Your position is always the screen centre (the map centre while there is no position).
     private function viewCentre() as Array<Float> {
-        if (!(_fix && inside())) { return [0.0, 0.0]; }
-        var lim = _half - ZOOMS[_zoom] / 2.0;
-        if (lim < 0) { lim = 0.0; }
-        return [clamp(_mx, lim), clamp(_my, lim)];
-    }
-
-    private function clamp(v as Float, lim as Float) as Float {
-        return (v > lim) ? lim : ((v < -lim) ? -lim : v);
+        return (_fix && inside()) ? [_mx, _my] : [0.0, 0.0];
     }
 
     private function startRender() as Void {
@@ -552,11 +544,7 @@ class TopoView extends WatchUi.View {
         drawNorth(dc, w);
         drawScale(dc, w, ZOOMS[_zoom]);
         drawAltitude(dc, w);
-        // crosshair on your position: the screen centre, unless the view is clamped at a map edge
-        var vc = viewCentre();
-        var pk = w.toFloat() / ZOOMS[_zoom];
-        var here = (_fix && inside()) ? [c + (_mx - vc[0]) * pk, c - (_my - vc[1]) * pk] : [c, c];
-        drawCrosshair(dc, c, here[0], here[1]);
+        drawCrosshair(dc, c, c, c);
     }
 
     // Your position: a crosshair on a paper halo so it always separates from the map.
