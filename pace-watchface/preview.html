@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pace Watch Face</title>
+<style>
+  :root { --bg:#f4f4f2; --fg:#1a1a1a; --muted:#666; --card:#fff; --line:#ddd; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg:#121212; --fg:#eee; --muted:#999; --card:#1c1c1c; --line:#333; }
+  }
+  :root[data-theme="dark"] { --bg:#121212; --fg:#eee; --muted:#999; --card:#1c1c1c; --line:#333; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font-family:system-ui, sans-serif; padding:24px 16px; }
+  h1 { font-size:20px; margin:0 0 4px; text-align:center; }
+  p.sub { margin:0 auto 20px; color:var(--muted); text-align:center; font-size:14px; max-width:620px; }
+  .row { display:flex; flex-wrap:wrap; gap:24px; justify-content:center; }
+  figure { margin:0; text-align:center; }
+  figcaption { margin-top:10px; font-size:14px; color:var(--muted); }
+  .bezel { width:min(320px, 82vw); aspect-ratio:1; border-radius:50%; background:#2b2b2b; padding:14px;
+           box-shadow:0 8px 24px rgba(0,0,0,.35), inset 0 0 0 3px #3a3a3a; }
+  svg { width:100%; height:100%; display:block; border-radius:50%; background:#000; }
+  .controls { margin:24px auto 0; max-width:680px; background:var(--card); border:1px solid var(--line);
+              border-radius:12px; padding:16px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:center; font-size:14px; }
+  .sw { width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer; }
+  .sw.on { border-color:var(--fg); }
+  label { display:flex; align-items:center; gap:8px; }
+  input[type=range] { width:120px; }
+  button { font:inherit; padding:8px 14px; border-radius:20px; border:1px solid var(--line); background:var(--bg); color:var(--fg); cursor:pointer; }
+  .note { max-width:680px; margin:16px auto 0; font-size:13px; color:var(--muted); line-height:1.5; }
+</style>
+</head>
+<body>
+<h1>Pace v2: layered analog face</h1>
+<p class="sub">Inspired by the layered look you shared, with your fields: time, date and battery. Uses your current local time.</p>
+
+<div class="row">
+  <figure><div class="bezel" id="active"></div><figcaption>Active (wrist raised)</figcaption></figure>
+  <figure><div class="bezel" id="aod"></div><figcaption>Always-on (low power)</figcaption></figure>
+</div>
+
+<div class="controls">
+  <button id="wake">▶ Raise wrist</button>
+  <label><input type="checkbox" id="real"> Real Garmin refresh rate</label>
+  <span id="swatches" style="display:flex;gap:8px"></span>
+  <label>Battery <input type="range" id="bat" min="1" max="100" value="72"> <span id="batv">72%</span></label>
+</div>
+<p class="note">
+  <b>About animation:</b> with “Real Garmin refresh rate” ticked, this shows what the Forerunner 165 can actually do:
+  the face redraws once a second while you're looking at it and once a minute otherwise, so the hands <i>jump</i> into place.
+  Untick it to see the smooth sweep a Pixel Watch does. Garmin doesn't let watch faces run that kind of smooth animation.
+</p>
+
+<script>
+const ACCENTS = [["#D4F78A","#B9A5FF"], ["#7FE3FF","#FFB27A"], ["#FFD166","#9EE6B0"], ["#FF9EC7","#A0C4FF"]];
+let [accent, accent2] = ACCENTS[0];
+const C = 195;
+const sw = document.getElementById("swatches");
+ACCENTS.forEach(([a, b], i) => {
+  const d = document.createElement("div");
+  d.className = "sw" + (i === 0 ? " on" : "");
+  d.style.background = `linear-gradient(135deg, ${a} 50%, ${b} 50%)`;
+  d.onclick = () => { accent = a; accent2 = b; [...sw.children].forEach(x => x.classList.remove("on")); d.classList.add("on"); draw(); };
+  sw.appendChild(d);
+});
+const bat = document.getElementById("bat"), batv = document.getElementById("batv"), real = document.getElementById("real");
+bat.oninput = () => { batv.textContent = bat.value + "%"; draw(); };
+
+const FONT = `font-family="'Roboto Condensed','Arial Narrow',system-ui,sans-serif"`;
+const rad = d => (d - 90) * Math.PI / 180;           // 0° = 12 o'clock
+const P = (deg, r) => [C + r * Math.cos(rad(deg)), C + r * Math.sin(rad(deg))];
+const f = n => n.toFixed(1);
+function arcPath(r, a0, a1) {
+  const [x0, y0] = P(a0, r), [x1, y1] = P(a1, r);
+  return `M${f(x0)} ${f(y0)} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${f(x1)} ${f(y1)}`;
+}
+function batColor(p) { return p < 15 ? "#FF6B6B" : p < 30 ? "#FFB020" : accent; }
+
+// wake animation state (only used when "real" is off)
+let wakeStart = -1;
+document.getElementById("wake").onclick = () => { wakeStart = performance.now(); if (real.checked) draw(); };
+const ease = t => 1 - Math.pow(1 - t, 3);
+
+function hand(deg, len, width, stroke, fill) {
+  // rounded pill from near centre outwards, rotated
+  return `<g transform="rotate(${f(deg)} ${C} ${C})">
+    <rect x="${C - width / 2}" y="${C - len}" width="${width}" height="${len - 14}" rx="${width / 2}"
+          fill="${fill}" stroke="${stroke}" stroke-width="5"/></g>`;
+}
+
+function face(now, aod) {
+  const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds(), ms = now.getMilliseconds();
+  const smooth = !real.checked && !aod;
+  const sec = smooth ? s + ms / 1000 : s;
+  let minDeg = (m + (smooth ? sec / 60 : 0)) * 6;
+  let hrDeg = ((h % 12) + m / 60) * 30;
+  // wake sweep
+  let k = 1;
+  if (!aod && wakeStart >= 0 && !real.checked) {
+    const t = Math.min(1, (performance.now() - wakeStart) / 900);
+    k = ease(t);
+    if (t >= 1) wakeStart = -1;
+  }
+  minDeg *= k; hrDeg *= k;
+
+  const dim = aod ? "#5a5a5a" : null;
+  const A = dim || accent, A2 = dim || accent2, W = aod ? "#777" : "#EDEDED", G = aod ? "#333" : "#8A8A8A";
+  let o = "";
+
+  // readable rotation for text on a ring: tops point outward, bottom half flipped upright
+  const ringRot = d => (d > 90 && d < 270) ? d + 180 : d;
+  if (!aod) {
+    // OUTER seconds ring: a rotating bezel. The current second sits at 12 o'clock,
+    // so the whole ring turns anticlockwise by one step every second. No pointer.
+    const rot = -sec * 6;
+    let ring = "";
+    for (let i = 0; i < 60; i++) {
+      const d = i * 6, [x, y] = P(d, 181);
+      // continuous distance (in seconds) from the top "now" position, so the highlight glides too
+      const near = Math.abs(((i - sec) % 60 + 90) % 60 - 30);   // 0 = exactly at top
+      if (i % 2 === 0) {
+        const t = Math.max(0, 1 - near / 4);                     // 1 at top, 0 four seconds away
+        const g = Math.round(106 + (237 - 106) * t);             // grey -> white
+        ring += `<text x="${f(x)}" y="${f(y)}" text-anchor="middle" dominant-baseline="central" fill="${aod ? W : `rgb(${g},${g},${g})`}"
+                 font-size="${f(10.5 + 2.5 * t)}" font-weight="${t > 0.5 ? 800 : 600}" ${FONT}
+                 transform="rotate(${d} ${f(x)} ${f(y)})">${String(i).padStart(2, "0")}</text>`;
+      } else {
+        ring += `<circle cx="${f(x)}" cy="${f(y)}" r="1.6" fill="#4a4a4a"/>`;
+      }
+    }
+    o += `<g transform="rotate(${f(rot)} ${C} ${C})">${ring}</g>`;
+    // INNER minute ring: bold numbers every 5 min, dash ticks between (lit up to the current minute)
+    for (let i = 0; i < 60; i++) {
+      const d = i * 6;
+      if (i % 5 === 0) {
+        const [x, y] = P(d, 157);
+        o += `<text x="${f(x)}" y="${f(y)}" text-anchor="middle" dominant-baseline="central" fill="${W}" font-size="19" font-weight="800" ${FONT}
+               transform="rotate(${ringRot(d)} ${f(x)} ${f(y)})">${String(i).padStart(2, "0")}</text>`;
+      } else {
+        const [x0, y0] = P(d, 152), [x1, y1] = P(d, 162);
+        const lit = i <= m;
+        o += `<line x1="${f(x0)}" y1="${f(y0)}" x2="${f(x1)}" y2="${f(y1)}" stroke="${lit ? A : "#3a3a3a"}" stroke-width="4" stroke-linecap="round"/>`;
+      }
+    }
+  } else {
+    for (let i = 0; i < 12; i++) {
+      const [x0, y0] = P(i * 30, 162), [x1, y1] = P(i * 30, 174);
+      o += `<line x1="${f(x0)}" y1="${f(y0)}" x2="${f(x1)}" y2="${f(y1)}" stroke="#444" stroke-width="3" stroke-linecap="round"/>`;
+    }
+  }
+
+  // battery complication (upper left)
+  const b = +bat.value, bx = 128, by = 122, br = 38;
+  if (!aod) {
+    const bc = batColor(b);
+    o += `<circle cx="${bx}" cy="${by}" r="${br}" fill="#1b2014" stroke="#2c3322" stroke-width="2"/>`;
+    const arcAt = (cx, cy, r, a0, a1) => {
+      const p = a => [cx + r * Math.cos(rad(a)), cy + r * Math.sin(rad(a))];
+      const [x0, y0] = p(a0), [x1, y1] = p(a1);
+      return `M${f(x0)} ${f(y0)} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${f(x1)} ${f(y1)}`;
+    };
+    o += `<path d="${arcAt(bx, by, br - 6, -150, 150)}" stroke="#333" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+    o += `<path d="${arcAt(bx, by, br - 6, -150, -150 + 300 * b / 100)}" stroke="${bc}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+    o += `<text x="${bx}" y="${by + 2}" text-anchor="middle" dominant-baseline="central" fill="${bc}" font-size="22" font-weight="700" ${FONT}>${b}</text>`;
+    o += `<text x="${bx}" y="${by + 26}" text-anchor="middle" fill="${G}" font-size="11" font-weight="700" ${FONT}>%</text>`;
+  }
+
+  // date complication (right)
+  const days = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  const dx = 272, dy = 195, dr = 40;
+  if (!aod) {
+    o += `<circle cx="${dx}" cy="${dy}" r="${dr}" fill="#1a1726" stroke="#2c2840" stroke-width="2"/>`;
+    o += `<text x="${dx}" y="${dy - 12}" text-anchor="middle" dominant-baseline="central" fill="${A2}" font-size="15" font-weight="700" letter-spacing="1" ${FONT}>${days[now.getDay()]}</text>`;
+    o += `<text x="${dx}" y="${dy + 12}" text-anchor="middle" dominant-baseline="central" fill="${W}" font-size="26" font-weight="800" ${FONT}>${now.getDate()}</text>`;
+  } else {
+    o += `<text x="${dx}" y="${dy}" text-anchor="middle" dominant-baseline="central" fill="#555" font-size="20" font-weight="700" ${FONT}>${days[now.getDay()]} ${now.getDate()}</text>`;
+  }
+
+  // digital time pill (left)
+  const hh = String(h).padStart(2, "0"), mm = String(m).padStart(2, "0");
+  o += `<rect x="62" y="176" width="100" height="40" rx="20" fill="${aod ? "#000" : "#1b2014"}" stroke="${aod ? "#444" : A}" stroke-width="3"/>`;
+  o += `<text x="112" y="197" text-anchor="middle" dominant-baseline="central" fill="${W}" font-size="24" font-weight="800" ${FONT}>${hh}:${mm}</text>`;
+
+  // seconds sub-dial (bottom)
+  if (!aod) {
+    const sx = 195, sy = 283, sr = 40;
+    for (let i = 0; i < 12; i++) {
+      const a = rad(i * 30), lit = Math.floor(sec / 5) >= i;
+      const x = sx + sr * Math.cos(a), y = sy + sr * Math.sin(a);
+      o += `<circle cx="${f(x)}" cy="${f(y)}" r="${i % 3 === 0 ? 4.5 : 3}" fill="${lit ? A : "#3a3a3a"}"/>`;
+    }
+    const a = rad(sec * 6), x = sx + sr * Math.cos(a), y = sy + sr * Math.sin(a);
+    o += `<circle cx="${f(x)}" cy="${f(y)}" r="7" fill="${A2}"/>`;
+    o += `<text x="${sx}" y="${sy}" text-anchor="middle" dominant-baseline="central" fill="${A}" font-size="26" font-weight="800" ${FONT}>${String(s).padStart(2, "0")}</text>`;
+  }
+
+  // hands
+  o += hand(hrDeg, 92, 22, aod ? "#666" : A2, "#000");
+  o += hand(minDeg, 138, 20, aod ? "#888" : A, "#000");
+  o += `<circle cx="${C}" cy="${C}" r="10" fill="#000" stroke="${aod ? "#666" : A}" stroke-width="4"/>`;
+
+  return `<svg viewBox="0 0 390 390" xmlns="http://www.w3.org/2000/svg">${o}</svg>`;
+}
+
+let lastSec = -1;
+function draw() {
+  const now = new Date();
+  document.getElementById("active").innerHTML = face(now, false);
+  document.getElementById("aod").innerHTML = face(now, true);
+}
+function loop() {
+  const now = new Date();
+  if (!real.checked || now.getSeconds() !== lastSec) { lastSec = now.getSeconds(); draw(); }
+  requestAnimationFrame(loop);
+}
+real.onchange = draw;
+draw(); loop();
+</script>
+</body>
+</html>
