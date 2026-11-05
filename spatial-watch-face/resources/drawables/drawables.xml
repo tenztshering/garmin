@@ -1,0 +1,16 @@
+<drawables>
+    <bitmap id="LauncherIcon" filename="launcher_icon.png"/>
+    <!-- hour scenes, already dithered to RGB565 by tools/render.py -->
+    <bitmap id="Hour01" filename="hour01.png" dithering="none"/>
+    <bitmap id="Hour02" filename="hour02.png" dithering="none"/>
+    <bitmap id="Hour03" filename="hour03.png" dithering="none"/>
+    <bitmap id="Hour04" filename="hour04.png" dithering="none"/>
+    <bitmap id="Hour05" filename="hour05.png" dithering="none"/>
+    <bitmap id="Hour06" filename="hour06.png" dithering="none"/>
+    <bitmap id="Hour07" filename="hour07.png" dithering="none"/>
+    <bitmap id="Hour08" filename="hour08.png" dithering="none"/>
+    <bitmap id="Hour09" filename="hour09.png" dithering="none"/>
+    <bitmap id="Hour10" filename="hour10.png" dithering="none"/>
+    <bitmap id="Hour11" filename="hour11.png" dithering="none"/>
+    <bitmap id="Hour12" filename="hour12.png" dithering="none"/>
+</drawables>
