@@ -8,7 +8,18 @@ class RidgeApp extends Application.AppBase {
         AppBase.initialize();
     }
 
+    private var _view as RidgeView?;
+
     function getInitialView() as [WatchUi.Views] or [WatchUi.Views, WatchUi.InputDelegates] {
-        return [new RidgeView()];
+        _view = new RidgeView();
+        return [_view];
+    }
+
+    // Accent colour changed in Garmin Connect.
+    function onSettingsChanged() as Void {
+        if (_view != null) {
+            _view.loadSettings();
+        }
+        WatchUi.requestUpdate();
     }
 }

@@ -1,0 +1,12 @@
+<settings>
+    <setting propertyKey="@Properties.Accent" title="@Strings.AccentTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Accent0</listEntry>
+            <listEntry value="1">@Strings.Accent1</listEntry>
+            <listEntry value="2">@Strings.Accent2</listEntry>
+            <listEntry value="3">@Strings.Accent3</listEntry>
+            <listEntry value="4">@Strings.Accent4</listEntry>
+            <listEntry value="5">@Strings.Accent5</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

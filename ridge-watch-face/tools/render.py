@@ -7,7 +7,7 @@ The watch draws the time in solid white, then this bitmap on top:
   - a black-filled mountain silhouette with teal ridge lines, in front of the digits.
 Everything else is transparent. Geometry must match source/RidgeView.mc (TIME_Y etc.).
 
-Usage: python3 tools/render.py   ->  resources/drawables/overlay.png, launcher_icon.png
+Usage: python3 tools/render.py   ->  resources/drawables/overlay0..5.png (one per accent), launcher_icon.png
 """
 import os
 
@@ -18,7 +18,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "..", "resources", "drawables")
 S = 4
 W = 390
-TEAL = (64, 184, 176, 255)     # on the RGB565 grid after rounding: close enough, no dither
+# Accent colours, same order as ACCENTS in source/RidgeView.mc and the setting list.
+# The mountain lines are baked in, so there is one overlay per accent.
+ACCENTS = [(64, 184, 176), (120, 196, 248), (184, 224, 96), (248, 176, 64), (248, 120, 104), (232, 232, 232)]
 BLACK = (0, 0, 0, 255)
 
 OX, OY, OW, OH = 20, 140, 350, 120      # overlay bitmap placement on screen
@@ -44,7 +46,10 @@ def ridge(x0, y0, x1, y1, rough, depth):
     return pts
 
 
-def overlay():
+def overlay(col):
+    global rng
+    rng = np.random.default_rng(11)          # same mountains for every colour
+    TEAL = (*col, 255)
     img = Image.new("RGBA", (OW * S, OH * S), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
 
@@ -96,8 +101,11 @@ def overlay():
 
 def main():
     os.makedirs(RES, exist_ok=True)
-    ov = overlay()
-    ov.save(os.path.join(RES, "overlay.png"))
+    for i, col in enumerate(ACCENTS):
+        overlay(col).save(os.path.join(RES, f"overlay{i}.png"))
+    if os.path.exists(os.path.join(RES, "overlay.png")):
+        os.remove(os.path.join(RES, "overlay.png"))
+    ov = overlay(ACCENTS[0])
     # preview + launcher icon: overlay on white digits
     from PIL import ImageFont
     prev = Image.new("RGB", (W, W), (0, 0, 0))
@@ -110,7 +118,7 @@ def main():
     prev.save(os.path.join(HERE, "..", "build", "preview.png"))
     prev.crop((95, 95, 295, 295)).resize((54, 54), Image.Resampling.LANCZOS).save(
         os.path.join(RES, "launcher_icon.png"))
-    print("wrote resources/drawables/overlay.png, build/preview.png")
+    print("wrote resources/drawables/overlay0..5.png, build/preview.png")
 
 
 if __name__ == "__main__":

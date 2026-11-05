@@ -1,3 +1,10 @@
 <strings>
     <string id="AppName">Ridge</string>
+    <string id="AccentTitle">Accent colour</string>
+    <string id="Accent0">Teal</string>
+    <string id="Accent1">Glacier</string>
+    <string id="Accent2">Lime</string>
+    <string id="Accent3">Amber</string>
+    <string id="Accent4">Coral</string>
+    <string id="Accent5">White</string>
 </strings>

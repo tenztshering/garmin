@@ -1,4 +1,5 @@
 import Toybox.Activity;
+import Toybox.Application;
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Math;
@@ -15,7 +16,8 @@ import Toybox.WatchUi;
 class RidgeView extends WatchUi.WatchFace {
 
     const WHITE = 0xFFFFFF;
-    const TEAL  = 0x40B8B0;
+    // accent colours: same order as tools/render.py ACCENTS and the settings list
+    const ACCENTS = [0x40B8B0, 0x78C4F8, 0xB8E060, 0xF8B040, 0xF87868, 0xE8E8E8];
     const GREY  = 0x9A9A9A;
     const DARK  = 0x3C3C3C;
     const SUN   = 0xF8A828;
@@ -30,6 +32,9 @@ class RidgeView extends WatchUi.WatchFace {
     const AMP = 30;                     // curve height at solar noon, px
 
     private var _overlay as WatchUi.BitmapResource?;
+    private var _accent as Number = 0x40B8B0;
+    private const OVERLAYS = [Rez.Drawables.Overlay0, Rez.Drawables.Overlay1, Rez.Drawables.Overlay2,
+        Rez.Drawables.Overlay3, Rez.Drawables.Overlay4, Rez.Drawables.Overlay5];
     private var _sleeping as Boolean = false;
     private var _scale as Float = 1.0;
     private var _fTime as Graphics.FontType = Graphics.FONT_NUMBER_THAI_HOT;
@@ -52,7 +57,7 @@ class RidgeView extends WatchUi.WatchFace {
 
     function onLayout(dc as Graphics.Dc) as Void {
         _scale = dc.getWidth() / 390.0;
-        _overlay = WatchUi.loadResource(Rez.Drawables.Overlay) as WatchUi.BitmapResource;
+        loadSettings();
         if (Graphics has :getVectorFont) {
             var b = ["RobotoCondensedBold", "RobotoRegular"];
             var t = Graphics.getVectorFont({ :face => b, :size => s(132) });
@@ -64,6 +69,21 @@ class RidgeView extends WatchUi.WatchFace {
             if (m != null) { _fMed = m; }
             if (sm != null) { _fSmall = sm; }
         }
+    }
+
+    // Reads the accent setting (Garmin Connect app > watch face > Settings) and loads the
+    // matching mountain overlay. Called at start and whenever the setting changes.
+    function loadSettings() as Void {
+        var i = 0;
+        try {
+            var v = Application.Properties.getValue("Accent");
+            if (v instanceof Number && v >= 0 && v < ACCENTS.size()) { i = v; }
+        } catch (e) {
+            i = 0;
+        }
+        _accent = ACCENTS[i];
+        _overlay = null;
+        _overlay = WatchUi.loadResource(OVERLAYS[i]) as WatchUi.BitmapResource;
     }
 
     function onExitSleep() as Void {
@@ -168,7 +188,7 @@ class RidgeView extends WatchUi.WatchFace {
         dc.setPenWidth(s(2));
         dc.drawRoundedRectangle(x, y, w, h, s(2));
         dc.fillRectangle(x + w, y + s(4), s(3), s(5));
-        dc.setColor(pct > 15 ? TEAL : 0xF04040, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(pct > 15 ? _accent : 0xF04040, Graphics.COLOR_TRANSPARENT);
         var fill = ((w - s(6)) * pct / 100).toNumber();
         if (fill < 1) { fill = 1; }
         dc.fillRectangle(x + s(3), y + s(3), fill, h - s(6));
@@ -192,7 +212,7 @@ class RidgeView extends WatchUi.WatchFace {
         var date = Lang.format("$1$ $2$", [(info.month as String).toUpper(), (info.day as Number).format("%02d")]);
         dc.setColor(WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(s(208), s(72), _fMed, date, l);
-        dc.setColor(TEAL, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
         dc.drawText(s(208), s(98), _fMed, weekday(info), l);
     }
 
@@ -224,7 +244,7 @@ class RidgeView extends WatchUi.WatchFace {
         dc.fillCircle(x + s(11), y + s(3), s(7));
         dc.fillRoundedRectangle(x - s(16), y + s(2), s(34), s(9), s(4));
         if (rain) {
-            dc.setColor(TEAL, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
             dc.setPenWidth(s(2));
             for (var i = -1; i <= 1; i++) {
                 dc.drawLine(x + s(i * 9 + 2), y + s(15), x + s(i * 9 - 2), y + s(23));
@@ -259,7 +279,7 @@ class RidgeView extends WatchUi.WatchFace {
             var x = s(x0 + (x1 - x0) * h / 24.0);
             var y = s(curveY(h));
             if (i > 0) {
-                dc.setColor(y <= s(HORIZON_Y) ? TEAL : GREY, Graphics.COLOR_TRANSPARENT);
+                dc.setColor(y <= s(HORIZON_Y) ? _accent : GREY, Graphics.COLOR_TRANSPARENT);
                 dc.setPenWidth(s(3));
                 dc.drawLine(px, py, x, y);
             }
@@ -304,11 +324,11 @@ class RidgeView extends WatchUi.WatchFace {
     }
 
     private function drawHalfSun(dc as Graphics.Dc, x as Number, y as Number, rising as Boolean) as Void {
-        dc.setColor(TEAL, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(x, y + s(3), s(9));
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(x - s(12), y + s(4), s(24), s(10));
-        dc.setColor(TEAL, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(s(2));
         dc.drawLine(x - s(14), y + s(6), x + s(14), y + s(6));
         // small arrow: up for sunrise, down for sunset
