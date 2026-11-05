@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<iq:manifest version="3" xmlns:iq="http://www.garmin.com/xml/connectiq">
+    <iq:application id="e27025069f7543058b16150d9db7826b" type="watchface" name="@Strings.AppName"
+        entry="ColumnApp" launcherIcon="@Drawables.LauncherIcon" minApiLevel="4.2.0">
+        <iq:products>
+            <iq:product id="fr165"/>
+            <iq:product id="fr165m"/>
+        </iq:products>
+        <iq:permissions/>
+        <iq:languages>
+            <iq:language>eng</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>
