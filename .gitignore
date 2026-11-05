@@ -3,3 +3,4 @@ pace-watchface/bin/
 .superpowers/
 topo-map/.topo-cache/
 */bin/
+dist/
