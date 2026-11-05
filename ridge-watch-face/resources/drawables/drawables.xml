@@ -1,0 +1,5 @@
+<drawables>
+    <bitmap id="LauncherIcon" filename="launcher_icon.png"/>
+    <!-- halftone fade + mountains, from tools/render.py; colours already on the RGB565 grid -->
+    <bitmap id="Overlay" filename="overlay.png" dithering="none"/>
+</drawables>
