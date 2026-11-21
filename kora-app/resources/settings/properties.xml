@@ -1,0 +1,4 @@
+<properties>
+    <property id="Radius" type="number">8</property>
+    <property id="Goal" type="number">0</property>
+</properties>

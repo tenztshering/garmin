@@ -1,0 +1,20 @@
+<settings>
+    <setting propertyKey="@Properties.Radius" title="@Strings.RadiusTitle">
+        <settingConfig type="list">
+            <listEntry value="5">@Strings.R5</listEntry>
+            <listEntry value="8">@Strings.R8</listEntry>
+            <listEntry value="12">@Strings.R12</listEntry>
+            <listEntry value="20">@Strings.R20</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.Goal" title="@Strings.GoalTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.G0</listEntry>
+            <listEntry value="3">@Strings.G3</listEntry>
+            <listEntry value="7">@Strings.G7</listEntry>
+            <listEntry value="13">@Strings.G13</listEntry>
+            <listEntry value="21">@Strings.G21</listEntry>
+            <listEntry value="108">@Strings.G108</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

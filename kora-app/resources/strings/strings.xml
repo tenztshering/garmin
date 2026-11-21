@@ -1,0 +1,15 @@
+<strings>
+    <string id="AppName">Kora</string>
+    <string id="RadiusTitle">Start circle radius</string>
+    <string id="R5">5 m (small chorten)</string>
+    <string id="R8">8 m (default)</string>
+    <string id="R12">12 m</string>
+    <string id="R20">20 m (large kora path)</string>
+    <string id="GoalTitle">Goal (rounds)</string>
+    <string id="G0">No goal (show position)</string>
+    <string id="G3">3</string>
+    <string id="G7">7</string>
+    <string id="G13">13</string>
+    <string id="G21">21</string>
+    <string id="G108">108</string>
+</strings>
