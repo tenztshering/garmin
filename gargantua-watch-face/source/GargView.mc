@@ -154,16 +154,16 @@ class GargView extends WatchUi.WatchFace {
         tdc.drawText(cx, s(TIME_Y - TEXT_TOP + 44), _fDate, date, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
-    // Dim outline of the shadow plus the time. Shifted 2 px each minute against burn-in.
+    // Dim outline of the shadow plus the time, burn-in safe (AlwaysOn.mc).
     private function drawAlwaysOn(dc as Graphics.Dc, time as String, min as Number) as Void {
-        var shifts = [[0, 0], [2, 0], [0, 2], [-2, 0], [0, -2]];
-        var o = shifts[min % 5];
+        var o = aodShift(min);
         var cx = dc.getWidth() / 2 + o[0];
         dc.setColor(RING, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(1);
         dc.drawCircle(cx, s(HOLE_Y) + o[1], s(HOLE_R));
         dc.setColor(DIM, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, s(TIME_Y) + o[1], _fTime, time, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        burnInMask(dc, min);
     }
 
     private function timeString(now as Gregorian.Info) as String {

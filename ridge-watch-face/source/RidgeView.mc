@@ -107,11 +107,11 @@ class RidgeView extends WatchUi.WatchFace {
         if (dc has :setAntiAlias) { dc.setAntiAlias(true); }
 
         if (_sleeping) {
-            // Always-on: thinner, smaller, dim time only (~5% pixels), nudged 2 px a minute.
-            var sh = [[0, 0], [2, 0], [0, 2], [-2, 0], [0, -2]];
-            var o = sh[(info.min as Number) % 5];
+            // Always-on: thinner, smaller, dim time only (~4% pixels), burn-in safe (AlwaysOn.mc).
+            var o = aodShift(info.min as Number);
             dc.setColor(DIM, Graphics.COLOR_TRANSPARENT);
             dc.drawText(s(195) + o[0], s(TIME_Y) + o[1], _fTimeAod, time, cc);
+            burnInMask(dc, info.min as Number);
             return;
         }
 

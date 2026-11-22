@@ -10,7 +10,7 @@ typing (`-l 2`). `developer_key` never leaves this folder or enters git.
   1 s timer at most; stop timers in `onHide`. Watch faces: one update a minute when
   asleep, nothing animated in low power.
 - **AMOLED.** Mostly black screens, few lit pixels, dim secondary content. Always-on mode
-  under 10% lit and shifted 2 px a minute against burn-in.
+  follows the burn-in rules under "Watch faces" (a 2 px nudge is not enough).
 - **Memory.** Load only the bitmap the screen needs now; no growing arrays (sum as you go
   instead of storing tracks). Check the simulator's memory readout after changes.
 - **Art.** Pre-render what the watch can't do (blur, ray tracing, detailed art) in
@@ -33,14 +33,23 @@ typing (`-l 2`). `developer_key` never leaves this folder or enters git.
 - **Review the whole journey** in the simulator (every state, start to finish) and show the
   user screenshots before calling UI done.
 
-## Watch faces: always customisable
+## Watch faces: building rules
 
-- Every watch face ships with **settings** (`properties.xml` + `settings.xml`, applied in
-  `onSettingsChanged`) **and on-watch customisation**: implement `getSettingsView()` in the
-  app with a `Menu2` (accent colour, data fields, etc.), so the watch's face picker offers
-  **Customize** alongside the system **Delete** option.
-- Offer at least an accent colour choice; if colours are baked into bitmaps, pre-render one
-  per accent.
+- **Customize:** every face ships with settings (`properties.xml` + `settings.xml`, applied in
+  `onSettingsChanged`) and on-watch customisation: copy `source/Customize.mc` from an
+  existing face and return `new CustomizeMenu(rows).views()` from `getSettingsView()`.
+  The face picker then shows **Customize**. Offer at least an accent colour, and check every
+  choice for contrast against the artwork (orange hands vanished on Spatial's orange digit).
+- **Delete is not ours to add.** Garmin draws it: faces installed from the Connect IQ Store
+  (or the Connect IQ phone app) show Delete on the watch; sideloaded `.prg` files may not.
+  Remove a sideloaded face by deleting its `.prg` from `GARMIN/Apps` over USB. Say so; never
+  promise a Delete option.
+- **Always-on (sleep) mode or the watch shows its plain default face instead:** at most 10%
+  of pixels lit, and no pixel lit for more than 3 minutes. Copy `source/AlwaysOn.mc`: nudge
+  with `aodShift(min)` (6-8 px steps, wider than strokes) and finish with
+  `burnInMask(dc, min)` (blanks alternate rows, swapping each minute). Draw only the time,
+  thin and dim. Check it with Settings → Display Mode → Always-On in the simulator and
+  measure lit pixels from a screenshot.
 
 ## Connect IQ pitfalls (learned on a real FR165)
 

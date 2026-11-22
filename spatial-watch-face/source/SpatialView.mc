@@ -68,10 +68,10 @@ class SpatialView extends WatchUi.WatchFace {
         if (dc has :setAntiAlias) { dc.setAntiAlias(true); }
 
         if (_sleeping) {
-            // Always-on: thin dim hands only, nudged 2 px a minute against burn-in.
-            var shifts = [[0, 0], [2, 0], [0, 2], [-2, 0], [0, -2]];
-            var o = shifts[ct.min % 5];
+            // Always-on: thin dim hands only, burn-in safe (AlwaysOn.mc).
+            var o = aodShift(ct.min);
             drawHands(dc, ct, o[0], o[1], true);
+            burnInMask(dc, ct.min);
             return;
         }
 

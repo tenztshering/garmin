@@ -88,10 +88,10 @@ class ColumnView extends WatchUi.WatchFace {
         if (dc has :setAntiAlias) { dc.setAntiAlias(true); }
 
         if (_sleeping) {
-            // Always-on: the time only, thin and dim, nudged 2 px a minute against burn-in.
-            var sh = [[0, 0], [2, 0], [0, 2], [-2, 0], [0, -2]];
-            var o = sh[m % 5];
+            // Always-on: the time only, thin and dim, burn-in safe (AlwaysOn.mc).
+            var o = aodShift(m);
             drawTime(dc, h, m, GREY, 4, o[0], o[1]);
+            burnInMask(dc, m);
             return;
         }
 
