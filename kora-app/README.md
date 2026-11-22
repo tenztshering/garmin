@@ -1,6 +1,6 @@
 # Kora
 
-Garmin FR165 / FR165m activity app that counts circumambulations (kora) of a chorten.
+Garmin FR165 activity app that counts circumambulations (kora) of a chorten.
 
 - **START** to start: your position is locked as the start point.
 - Round 1: once you have gone more than 2 × the radius away and come back within the radius, the count goes up by 1, the watch buzzes and a lap is added. Round 1 also learns the chorten's centre and your walking direction.

@@ -123,14 +123,19 @@ class KoraApp extends Application.AppBase {
         return d != null ? d.toNumber() : 0;
     }
 
+    // Both end the session and clear the count, back to a fresh start screen.
     function save() as Void {
-        (_session as ActivityRecording.Session).save();
+        var s = _session;
+        if (s != null) { s.save(); }
         _session = null;
+        counter = null;
     }
 
     function discard() as Void {
-        (_session as ActivityRecording.Session).discard();
+        var s = _session;
+        if (s != null) { s.discard(); }
         _session = null;
+        counter = null;
     }
 }
 
@@ -205,6 +210,9 @@ function showStopMenu() as Void {
     WatchUi.pushView(menu, new StopMenuDelegate(), WatchUi.SLIDE_UP);
 }
 
+// Save and Discard never force-close the app (System.exit() while a confirmation was still
+// closing froze a real FR165). They end the session, pop back to the start screen and show
+// a toast; BACK from there exits the normal way.
 class StopMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     function initialize() {
@@ -219,24 +227,37 @@ class StopMenuDelegate extends WatchUi.Menu2InputDelegate {
             WatchUi.popView(WatchUi.SLIDE_DOWN);
         } else if (id == :save) {
             app.save();
-            System.exit();
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            toast("Saved");
         } else {
-            WatchUi.pushView(new WatchUi.Confirmation("Discard kora?"), new DiscardDelegate(), WatchUi.SLIDE_UP);
+            var confirm = new WatchUi.Menu2({ :title => "Discard kora?" });
+            confirm.addItem(new WatchUi.MenuItem("Discard", null, :yes, null));
+            confirm.addItem(new WatchUi.MenuItem("Cancel", null, :no, null));
+            WatchUi.pushView(confirm, new DiscardMenuDelegate(), WatchUi.SLIDE_UP);
         }
     }
 }
 
-class DiscardDelegate extends WatchUi.ConfirmationDelegate {
+class DiscardMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     function initialize() {
-        ConfirmationDelegate.initialize();
+        Menu2InputDelegate.initialize();
     }
 
-    function onResponse(response as WatchUi.Confirm) as Boolean {
-        if (response == WatchUi.CONFIRM_YES) {
+    function onSelect(item as WatchUi.MenuItem) as Void {
+        if (item.getId() == :yes) {
             (Application.getApp() as KoraApp).discard();
-            System.exit();
+            WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);     // this menu
+            WatchUi.popView(WatchUi.SLIDE_DOWN);          // the stop menu
+            toast("Discarded");
+        } else {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
         }
-        return true;
+    }
+}
+
+function toast(msg as String) as Void {
+    if (WatchUi has :showToast) {
+        WatchUi.showToast(msg, null);
     }
 }
