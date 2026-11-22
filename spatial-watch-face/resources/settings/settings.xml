@@ -1,0 +1,16 @@
+<settings>
+    <setting propertyKey="@Properties.Hands" title="@Strings.HandsTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Hands0</listEntry>
+            <listEntry value="1">@Strings.Hands1</listEntry>
+            <listEntry value="2">@Strings.Hands2</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.Data" title="@Strings.DataTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Data0</listEntry>
+            <listEntry value="1">@Strings.Data1</listEntry>
+            <listEntry value="2">@Strings.Data2</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

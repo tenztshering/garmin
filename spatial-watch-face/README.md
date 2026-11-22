@@ -26,3 +26,7 @@ Copy `bin/spatial-fr165.prg` to **GARMIN/Apps** on the watch (`-d fr165m` for th
 `python3 tools/render.py` regenerates the 12 hour scenes (`resources/drawables/hourNN.png`)
 and a contact sheet at `build/sheet.png`. Colours, digit shapes and glass strength are at the
 top of that file.
+
+## Customize
+
+On the watch: hold the face, choose **Customize**. In Garmin Connect: the face's settings. Options: Hands (Ivory, Sage, Sky) and data colour (Sage, Ivory, Orange).

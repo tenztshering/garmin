@@ -17,4 +17,7 @@
             <listEntry value="108">@Strings.G108</listEntry>
         </settingConfig>
     </setting>
+    <setting propertyKey="@Properties.BatterySaver" title="@Strings.BatterySaverTitle">
+        <settingConfig type="boolean"/>
+    </setting>
 </settings>

@@ -99,6 +99,7 @@ class KoraView extends WatchUi.View {
         if (!started) {
             dc.setColor(MUTED, Graphics.COLOR_TRANSPARENT);
             dc.drawText(c, s(312), Graphics.FONT_XTINY, "UP / DOWN  change goal", CJ);
+            dc.drawText(c, s(340), Graphics.FONT_XTINY, app.batterySaver() ? "Battery saver on" : "Hold UP  settings", CJ);
             return;
         }
         var km = (app.walked() / 1000.0).format("%.2f") + " km";

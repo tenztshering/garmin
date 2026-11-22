@@ -18,7 +18,7 @@ import Toybox.WatchUi;
 class ColumnView extends WatchUi.WatchFace {
 
     const WHITE = 0xFFFFFF;
-    const GREEN = 0x58E05A;
+    const ACCENTS = [0x58E05A, 0xF8A420, 0x58B8F8, 0xF87898, 0xFFFFFF];   // same order as the settings list
     const TRACK = 0x2E2E2E;
     const GREY  = 0x8A8A8A;
 
@@ -39,6 +39,7 @@ class ColumnView extends WatchUi.WatchFace {
     const TEXT_X = 268;
 
     private var _sleeping as Boolean = false;
+    private var _accent as Number = 0x58E05A;
     private var _scale as Float = 1.0;
     private var _fSmall as Graphics.FontType = Graphics.FONT_TINY;
     private var _fTiny as Graphics.FontType = Graphics.FONT_XTINY;
@@ -49,6 +50,11 @@ class ColumnView extends WatchUi.WatchFace {
 
     function initialize() {
         WatchFace.initialize();
+        loadSettings();
+    }
+
+    function loadSettings() as Void {
+        _accent = ACCENTS[settingIndex("Accent", ACCENTS.size())] as Number;
     }
 
     function onLayout(dc as Graphics.Dc) as Void {
@@ -124,7 +130,7 @@ class ColumnView extends WatchUi.WatchFace {
         var j = Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER;
         dc.setColor(WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(x, y, _fSmall, mm, j);
-        dc.setColor(GREEN, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
         dc.drawText(x + dc.getTextWidthInPixels(mm, _fSmall), y, _fSmall, (info.day as Number).format("%02d"), j);
     }
 
@@ -144,14 +150,14 @@ class ColumnView extends WatchUi.WatchFace {
         dc.setColor(TRACK, Graphics.COLOR_TRANSPARENT);
         dc.drawLine(x, y0, x, y1);
         var top = y1 - ((y1 - y0) * pct / 100).toNumber();
-        dc.setColor(pct > 15 ? GREEN : 0xF04040, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(pct > 15 ? _accent : 0xF04040, Graphics.COLOR_TRANSPARENT);
         dc.drawLine(x, top, x, y1);
 
         if (st.charging) {
             // lightning bolt
             var bx = s(195);
             var by = s(293);
-            dc.setColor(GREEN, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
             dc.fillPolygon([[bx + s(3), by - s(11)], [bx - s(7), by + s(2)], [bx - s(1), by + s(2)],
                 [bx - s(3), by + s(11)], [bx + s(7), by - s(2)], [bx + s(1), by - s(2)]]);
         }
@@ -187,7 +193,7 @@ class ColumnView extends WatchUi.WatchFace {
 
         var x = s(ICON_X);
         drawWeatherIcon(dc, x, s(136));
-        dc.setColor(GREEN, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
         drawShoe(dc, x, s(193));
         drawFlame(dc, x, s(223));
         drawHeart(dc, x, s(255));
@@ -231,7 +237,7 @@ class ColumnView extends WatchUi.WatchFace {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(s(2));
         dc.drawLine(x - s(10), y + s(3), x + s(10), y + s(3));     // sole line
-        dc.setColor(GREEN, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
     }
 
     private function drawFlame(dc as Graphics.Dc, x as Number, y as Number) as Void {
@@ -239,7 +245,7 @@ class ColumnView extends WatchUi.WatchFace {
             [x, y + s(10)], [x - s(6), y + s(8)], [x - s(8), y + s(3)], [x - s(5), y - s(3)], [x - s(2), y]]);
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         dc.fillPolygon([[x, y + s(1)], [x + s(3), y + s(6)], [x, y + s(9)], [x - s(3), y + s(6)]]);
-        dc.setColor(GREEN, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_accent, Graphics.COLOR_TRANSPARENT);
     }
 
     private function drawHeart(dc as Graphics.Dc, x as Number, y as Number) as Void {

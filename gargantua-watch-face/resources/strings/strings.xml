@@ -1,3 +1,10 @@
 <strings>
     <string id="AppName">Gargantua</string>
+    <string id="TimeColourTitle">Time colour</string>
+    <string id="TimeColour0">Cream</string>
+    <string id="TimeColour1">White</string>
+    <string id="TimeColour2">Amber</string>
+    <string id="AnimationTitle">Animation</string>
+    <string id="Animation0">Always</string>
+    <string id="Animation1">Once per wake</string>
 </strings>

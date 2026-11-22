@@ -1,3 +1,11 @@
 <strings>
     <string id="AppName">Spatial</string>
+    <string id="HandsTitle">Hands</string>
+    <string id="Hands0">Ivory</string>
+    <string id="Hands1">Sage</string>
+    <string id="Hands2">Sky</string>
+    <string id="DataTitle">Data colour</string>
+    <string id="Data0">Sage</string>
+    <string id="Data1">Ivory</string>
+    <string id="Data2">Orange</string>
 </strings>

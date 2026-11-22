@@ -20,3 +20,7 @@ face; drawing and code are original.
     "$SDK/bin/monkeyc" -d fr165 -f monkey.jungle -o bin/column-fr165.prg -y ../developer_key
 
 Copy `bin/column-fr165.prg` to **GARMIN/Apps** on the watch (`-d fr165m` for the Music model).
+
+## Customize
+
+On the watch: hold the face, choose **Customize**. In Garmin Connect: the face's settings. Options: Accent colour (Green, Saffron, Blue, Pink, White).

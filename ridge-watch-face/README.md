@@ -22,3 +22,7 @@ Copy `bin/ridge-fr165.prg` to **GARMIN/Apps** on the watch (`-d fr165m` for the 
 
 `python3 tools/render.py` regenerates the halftone + mountain overlay
 (`resources/drawables/overlay.png`) and a preview at `build/preview.png`.
+
+## Customize
+
+On the watch: hold the face, choose **Customize**. In Garmin Connect: the face's settings. Options: Accent colour (Teal, Glacier, Lime, Amber, Coral, White).

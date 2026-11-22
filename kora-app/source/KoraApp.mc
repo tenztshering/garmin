@@ -28,14 +28,31 @@ class KoraApp extends Application.AppBase {
     function onStart(state as Dictionary?) as Void {
         var g = Application.Properties.getValue("Goal");
         if (g instanceof Number && GOALS.indexOf(g) >= 0) { goal = g; }
-        // all satellite systems: best fix next to a big chorten
-        var config = Position.CONFIGURATION_GPS_GLONASS_GALILEO_BEIDOU_L1;
+        startGps();
+    }
+
+    // Battery saver: GPS satellites only (about half the GPS power draw, a less steady fix
+    // beside tall buildings). Otherwise all systems for the best fix next to a big chorten.
+    function batterySaver() as Boolean {
+        var v = Application.Properties.getValue("BatterySaver");
+        return (v instanceof Boolean) && v;
+    }
+
+    function startGps() as Void {
+        Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
+        var config = batterySaver() ? Position.CONFIGURATION_GPS
+                                    : Position.CONFIGURATION_GPS_GLONASS_GALILEO_BEIDOU_L1;
         if ((Position has :hasConfigurationSupport) && Position.hasConfigurationSupport(config)) {
             Position.enableLocationEvents({ :acquisitionType => Position.LOCATION_CONTINUOUS,
                 :configuration => config }, method(:onPosition));
         } else {
             Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
         }
+    }
+
+    function onSettingsChanged() as Void {
+        startGps();
+        WatchUi.requestUpdate();
     }
 
     function onStop(state as Dictionary?) as Void {
@@ -140,7 +157,7 @@ class KoraApp extends Application.AppBase {
 }
 
 // START: start / pause (opens Resume, Save, Discard). BACK: lap = count a round by hand.
-// UP/DOWN before starting: choose the goal.
+// UP/DOWN before starting: choose the goal. Hold UP before starting: settings.
 // The START button arrives as the "select" behaviour. A screen tap would too, so taps are
 // swallowed in onTap (it runs before the behaviour), and swipes are swallowed while walking,
 // so a sleeve can't stop the activity or add a round.
@@ -185,6 +202,17 @@ class KoraDelegate extends WatchUi.BehaviorDelegate {
 
     function onPreviousPage() as Boolean {
         return stepGoal(1);
+    }
+
+    // Hold UP before starting: settings.
+    function onMenu() as Boolean {
+        var app = Application.getApp() as KoraApp;
+        if (app.hasSession()) { return true; }
+        var menu = new WatchUi.Menu2({ :title => "Settings" });
+        menu.addItem(new WatchUi.ToggleMenuItem("Battery saver", "GPS only",
+            :batterySaver, app.batterySaver(), null));
+        WatchUi.pushView(menu, new SettingsDelegate(), WatchUi.SLIDE_UP);
+        return true;
     }
 
     function onNextPage() as Boolean {
@@ -252,6 +280,20 @@ class DiscardMenuDelegate extends WatchUi.Menu2InputDelegate {
             toast("Discarded");
         } else {
             WatchUi.popView(WatchUi.SLIDE_DOWN);
+        }
+    }
+}
+
+class SettingsDelegate extends WatchUi.Menu2InputDelegate {
+
+    function initialize() {
+        Menu2InputDelegate.initialize();
+    }
+
+    function onSelect(item as WatchUi.MenuItem) as Void {
+        if (item.getId() == :batterySaver) {
+            Application.Properties.setValue("BatterySaver", (item as WatchUi.ToggleMenuItem).isEnabled());
+            (Application.getApp() as KoraApp).onSettingsChanged();
         }
     }
 }

@@ -1,3 +1,9 @@
 <strings>
     <string id="AppName">Column</string>
+    <string id="AccentTitle">Accent colour</string>
+    <string id="Accent0">Green</string>
+    <string id="Accent1">Saffron</string>
+    <string id="Accent2">Blue</string>
+    <string id="Accent3">Pink</string>
+    <string id="Accent4">White</string>
 </strings>

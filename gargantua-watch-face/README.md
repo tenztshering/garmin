@@ -35,3 +35,7 @@ size (`SCALE`), disk edges, loop length. If you move the hole (`CX`, `CY`, `SCAL
   photon ring. Doppler + gravitational shift (Luminet 1979) sets brightness and colour.
 - Animation is drawn with motion blur (4 sub-frames per frame), because Monkey Motion
   plays at most 10 fps. The loop is seamless.
+
+## Customize
+
+On the watch: hold the face, choose **Customize**. In Garmin Connect: the face's settings. Options: Time colour (Cream, White, Amber) and animation (Always, or Once per wake to save battery).

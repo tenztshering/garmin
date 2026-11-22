@@ -11,7 +11,8 @@ Garmin FR165 activity app that counts circumambulations (kora) of a chorten.
 - Outer ring with a goal: fills towards it (one segment per round up to 21); long-short-long buzz when reached.
 - Outer ring with no goal: a dot shows where you are round the circuit. The centre and walking direction are learned on round 1, so the dot appears from round 2.
 - Watermark: `tools/jangchub-chorten.png` (supplied line art), dimmed by `tools/render.py`.
-- Settings (Connect IQ app): goal, and start-circle radius 5 / 8 / 12 / 20 m (default 8). Use 5 m for small chortens and 20 m for long kora paths.
+- **Hold UP** before START: on-watch settings (Battery saver: GPS only, for long pilgrimages).
+- Settings (Connect IQ app): goal, battery saver, and start-circle radius 5 / 8 / 12 / 20 m (default 8). Use 5 m for small chortens and 20 m for long kora paths.
 
 Build: `monkeyc -f monkey.jungle -d fr165 -o bin/kora-fr165.prg -y ../developer_key -l 2`
 Test: add `-t`, then `monkeydo bin/kora-fr165.prg fr165 -t`

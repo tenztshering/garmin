@@ -1,0 +1,15 @@
+<settings>
+    <setting propertyKey="@Properties.TimeColour" title="@Strings.TimeColourTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.TimeColour0</listEntry>
+            <listEntry value="1">@Strings.TimeColour1</listEntry>
+            <listEntry value="2">@Strings.TimeColour2</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.Animation" title="@Strings.AnimationTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Animation0</listEntry>
+            <listEntry value="1">@Strings.Animation1</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

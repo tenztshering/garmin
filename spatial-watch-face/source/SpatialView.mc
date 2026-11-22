@@ -13,9 +13,9 @@ import Toybox.WatchUi;
 // Right ticks: battery, one tick per 10%.
 class SpatialView extends WatchUi.WatchFace {
 
-    const HAND  = 0xF4F2EC;   // hands
+    const HANDS = [0xF4F2EC, 0xC8D6A8, 0xB8DCF8];   // Ivory, Sage, Sky (settings order); all clear over the orange digits
     const INK   = 0x232C22;   // inset line in the hands + centre pin
-    const SAGE  = 0xC8D6A8;   // data fills and labels
+    const DATAS = [0xC8D6A8, 0xF4F2EC, 0xF86C28];   // Sage, Ivory, Orange
     const TRACK = 0x4A5846;   // unfilled arc / ticks
     const DIM   = 0x8A8A8A;   // always-on digits
 
@@ -26,12 +26,20 @@ class SpatialView extends WatchUi.WatchFace {
         Rez.Drawables.Hour08, Rez.Drawables.Hour09, Rez.Drawables.Hour10, Rez.Drawables.Hour11,
         Rez.Drawables.Hour12];
     private var _sleeping as Boolean = false;
+    private var _hand as Number = 0xF4F2EC;     // hands
+    private var _data as Number = 0xC8D6A8;     // data fills and labels
     private var _scale as Float = 1.0;
     private var _fData as Graphics.FontType = Graphics.FONT_XTINY;
     private var _vData as Graphics.VectorFont?;
 
     function initialize() {
         WatchFace.initialize();
+        loadSettings();
+    }
+
+    function loadSettings() as Void {
+        _hand = HANDS[settingIndex("Hands", HANDS.size())] as Number;
+        _data = DATAS[settingIndex("Data", DATAS.size())] as Number;
     }
 
     function onLayout(dc as Graphics.Dc) as Void {
@@ -85,7 +93,7 @@ class SpatialView extends WatchUi.WatchFace {
         var c = 195.0;
         var ha = Math.toRadians((ct.hour % 12) * 30 + ct.min * 0.5);
         var ma = Math.toRadians(ct.min * 6);
-        var col = dim ? DIM : HAND;
+        var col = dim ? DIM : _hand;
         // hour: short and wide; minute: long. Dark inset line along the outer part, as in a
         // physical hand with a lume slot.
         capsule(dc, c, c, ha, -12, 100, dim ? 6 : 15, col, ox, oy);
@@ -93,7 +101,7 @@ class SpatialView extends WatchUi.WatchFace {
         if (!dim) {
             capsule(dc, c, c, ha, 34, 90, 6, INK, 0, 0);
             capsule(dc, c, c, ma, 40, 158, 4, INK, 0, 0);
-            dc.setColor(HAND, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(_hand, Graphics.COLOR_TRANSPARENT);
             dc.fillCircle(s(c), s(c), s(9));
             dc.setColor(INK, Graphics.COLOR_TRANSPARENT);
             dc.fillCircle(s(c), s(c), s(3));
@@ -129,7 +137,7 @@ class SpatialView extends WatchUi.WatchFace {
         dc.setColor(TRACK, Graphics.COLOR_TRANSPARENT);
         dc.drawArc(c, c, r, Graphics.ARC_CLOCKWISE, 215, 145);
         if (frac > 0.01) {
-            dc.setColor(SAGE, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(_data, Graphics.COLOR_TRANSPARENT);
             dc.drawArc(c, c, r, Graphics.ARC_CLOCKWISE, 215, 215 - (70 * frac).toNumber());
         }
         drawCurved(dc, groupThousands(steps), 236, Graphics.RADIAL_TEXT_DIRECTION_COUNTER_CLOCKWISE);
@@ -146,7 +154,7 @@ class SpatialView extends WatchUi.WatchFace {
             var len = 6 + i * 1.1;
             var r1 = 188.0;             // hugs the bezel, clear of the hour digits
             var r0 = r1 - len;
-            dc.setColor(i < lit ? SAGE : TRACK, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(i < lit ? _data : TRACK, Graphics.COLOR_TRANSPARENT);
             dc.drawLine(s((c + r0 * Math.cos(a)).toNumber()), s((c - r0 * Math.sin(a)).toNumber()),
                         s((c + r1 * Math.cos(a)).toNumber()), s((c - r1 * Math.sin(a)).toNumber()));
         }
@@ -154,7 +162,7 @@ class SpatialView extends WatchUi.WatchFace {
     }
 
     private function drawCurved(dc as Graphics.Dc, txt as String, angle as Number, dir as Graphics.RadialTextDirection) as Void {
-        dc.setColor(SAGE, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_data, Graphics.COLOR_TRANSPARENT);
         if (_vData != null && dc has :drawRadialText) {
             dc.drawRadialText(s(195), s(195), _vData as Graphics.VectorFont, txt,
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER, angle, s(174), dir);

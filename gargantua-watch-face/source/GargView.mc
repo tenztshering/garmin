@@ -5,7 +5,7 @@ import Toybox.Time;
 import Toybox.Time.Gregorian;
 import Toybox.WatchUi;
 
-// Replays the black-hole loop for as long as the watch is awake.
+// Replays the black-hole loop while awake, or stops after one pass ("Once per wake").
 class GargLoop extends WatchUi.AnimationDelegate {
 
     private var _view as WeakReference;
@@ -19,7 +19,7 @@ class GargLoop extends WatchUi.AnimationDelegate {
         if (event == WatchUi.ANIMATION_EVENT_COMPLETE) {
             var v = _view.get() as GargView?;
             if (v != null) {
-                v.play();
+                v.loopDone();
             }
         }
     }
@@ -32,7 +32,7 @@ class GargLoop extends WatchUi.AnimationDelegate {
 //             (AMOLED burn-in protection, well under 10% of pixels lit).
 class GargView extends WatchUi.WatchFace {
 
-    const CREAM = 0xF2E6D6;     // the disk's hottest colour, used for the time
+    const TIMES = [0xF2E6D6, 0xFFFFFF, 0xF8B040];   // Cream (the disk's hottest colour), White, Amber
     const MUTED = 0xB3A796;    // date: bright enough to stay crisp at 19 px
     const DIM   = 0x7A7A7A;
     const RING  = 0x5A4636;
@@ -47,6 +47,8 @@ class GargView extends WatchUi.WatchFace {
     private var _text as WatchUi.Layer?;
     private var _sleeping as Boolean = false;
     private var _playing as Boolean = false;
+    private var _timeCol as Number = 0xF2E6D6;
+    private var _once as Boolean = false;          // battery: one pass per wake instead of looping
     private var _scale as Float = 1.0;
     private var _fTime as Graphics.FontType = Graphics.FONT_NUMBER_MEDIUM;
     private var _fDate as Graphics.FontType = Graphics.FONT_XTINY;
@@ -54,6 +56,21 @@ class GargView extends WatchUi.WatchFace {
     function initialize() {
         WatchFace.initialize();
         _anim = new WatchUi.AnimationLayer(Rez.Drawables.Gargantua, null);
+        loadSettings();
+    }
+
+    function loadSettings() as Void {
+        _timeCol = TIMES[settingIndex("TimeColour", TIMES.size())] as Number;
+        _once = settingIndex("Animation", 2) == 1;
+    }
+
+    // End of one pass: loop again unless set to play once per wake.
+    function loopDone() as Void {
+        if (_once) {
+            _playing = false;
+        } else {
+            play();
+        }
     }
 
     function onLayout(dc as Graphics.Dc) as Void {
@@ -131,7 +148,7 @@ class GargView extends WatchUi.WatchFace {
         tdc.clear();
         if (tdc has :setAntiAlias) { tdc.setAntiAlias(true); }
         var cx = s(120);
-        tdc.setColor(CREAM, Graphics.COLOR_TRANSPARENT);
+        tdc.setColor(_timeCol, Graphics.COLOR_TRANSPARENT);
         tdc.drawText(cx, s(TIME_Y - TEXT_TOP), _fTime, time, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         tdc.setColor(MUTED, Graphics.COLOR_TRANSPARENT);
         tdc.drawText(cx, s(TIME_Y - TEXT_TOP + 44), _fDate, date, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
