@@ -136,15 +136,24 @@ class KoraApp extends Application.AppBase {
 
 // START: start / pause (opens Resume, Save, Discard). BACK: lap = count a round by hand.
 // UP/DOWN before starting: choose the goal.
-// Screen taps are ignored so a sleeve can't stop the activity.
+// The START button arrives as the "select" behaviour. A screen tap would too, so taps are
+// swallowed in onTap (it runs before the behaviour), and swipes are swallowed while walking,
+// so a sleeve can't stop the activity or add a round.
 class KoraDelegate extends WatchUi.BehaviorDelegate {
 
     function initialize() {
         BehaviorDelegate.initialize();
     }
 
-    function onKey(evt as WatchUi.KeyEvent) as Boolean {
-        if (evt.getKey() != WatchUi.KEY_ENTER) { return false; }
+    function onTap(evt as WatchUi.ClickEvent) as Boolean {
+        return true;
+    }
+
+    function onSwipe(evt as WatchUi.SwipeEvent) as Boolean {
+        return (Application.getApp() as KoraApp).isRecording();
+    }
+
+    function onSelect() as Boolean {
         var app = Application.getApp() as KoraApp;
         if (app.isRecording()) {
             app.pause();
@@ -167,10 +176,6 @@ class KoraDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
         return false;                    // nothing recorded: exit
-    }
-
-    function onSelect() as Boolean {
-        return true;
     }
 
     function onPreviousPage() as Boolean {
