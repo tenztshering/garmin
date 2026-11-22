@@ -87,7 +87,7 @@ class ColumnView extends WatchUi.WatchFace {
         dc.clear();
         if (dc has :setAntiAlias) { dc.setAntiAlias(true); }
 
-        if (_sleeping) {
+        if (isLowPower(_sleeping)) {
             // Always-on: the time only, thin and dim, burn-in safe (AlwaysOn.mc).
             var o = aodShift(m);
             drawTime(dc, h, m, GREY, 4, o[0], o[1]);

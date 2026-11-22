@@ -1,9 +1,20 @@
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.System;
 
 // AMOLED always-on rules (break either and the watch swaps in its plain default face):
 // at most 10% of pixels lit, and no pixel lit for more than 3 minutes.
 //
+// isLowPower(): call at the top of onUpdate. Newer AMOLED watches (FR165) report always-on
+// through System.getDisplayMode() and may never call onEnterSleep; a face that keeps
+// drawing its full design there breaks the 10% luminance rule and is replaced.
+function isLowPower(sleeping as Boolean) as Boolean {
+    if (System has :getDisplayMode) {
+        return sleeping || System.getDisplayMode() == System.DISPLAY_MODE_LOW_POWER;
+    }
+    return sleeping;
+}
+
 // aodShift(): where to nudge the content this minute; steps are 6-8 px, wider than the
 // strokes, so the same stroke never covers the same pixel two minutes running.
 function aodShift(minute as Number) as [Number, Number] {

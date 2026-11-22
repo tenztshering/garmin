@@ -106,7 +106,7 @@ class RidgeView extends WatchUi.WatchFace {
         dc.clear();
         if (dc has :setAntiAlias) { dc.setAntiAlias(true); }
 
-        if (_sleeping) {
+        if (isLowPower(_sleeping)) {
             // Always-on: thinner, smaller, dim time only (~4% pixels), burn-in safe (AlwaysOn.mc).
             var o = aodShift(info.min as Number);
             dc.setColor(DIM, Graphics.COLOR_TRANSPARENT);

@@ -45,7 +45,8 @@ class GargView extends WatchUi.WatchFace {
 
     private var _anim as WatchUi.AnimationLayer;
     private var _text as WatchUi.Layer?;
-    private var _sleeping as Boolean = false;
+    private var _sleeping as Boolean = false;      // drawing the always-on version
+    private var _sleepCall as Boolean = false;     // onEnterSleep seen
     private var _playing as Boolean = false;
     private var _timeCol as Number = 0xF2E6D6;
     private var _once as Boolean = false;          // battery: one pass per wake instead of looping
@@ -97,20 +98,23 @@ class GargView extends WatchUi.WatchFace {
         stop();
     }
 
+    // The system's sleep signal; onUpdate combines it with the display mode.
     function onExitSleep() as Void {
-        _sleeping = false;
-        _anim.setVisible(true);
-        (_text as WatchUi.Layer).setVisible(true);
-        play();
+        _sleepCall = false;
         WatchUi.requestUpdate();
     }
 
     function onEnterSleep() as Void {
-        _sleeping = true;
-        stop();
-        _anim.setVisible(false);
-        (_text as WatchUi.Layer).setVisible(false);
+        _sleepCall = true;
         WatchUi.requestUpdate();
+    }
+
+    // Also reached from onUpdate: the FR165 may switch to always-on without onEnterSleep.
+    private function setLowPower(low as Boolean) as Void {
+        _sleeping = low;
+        _anim.setVisible(!low);
+        (_text as WatchUi.Layer).setVisible(!low);
+        if (low) { stop(); } else { play(); }
     }
 
     function play() as Void {
@@ -138,7 +142,9 @@ class GargView extends WatchUi.WatchFace {
         var time = timeString(now);
         var date = Lang.format("$1$ $2$", [now.day_of_week, now.day]).toUpper();
 
-        if (_sleeping) {
+        var low = isLowPower(_sleepCall);
+        if (low != _sleeping) { setLowPower(low); }
+        if (low) {
             drawAlwaysOn(dc, time, now.min as Number);
             return;
         }

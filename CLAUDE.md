@@ -44,12 +44,19 @@ typing (`-l 2`). `developer_key` never leaves this folder or enters git.
   (or the Connect IQ phone app) show Delete on the watch; sideloaded `.prg` files may not.
   Remove a sideloaded face by deleting its `.prg` from `GARMIN/Apps` over USB. Say so; never
   promise a Delete option.
-- **Always-on (sleep) mode or the watch shows its plain default face instead:** at most 10%
-  of pixels lit, and no pixel lit for more than 3 minutes. Copy `source/AlwaysOn.mc`: nudge
-  with `aodShift(min)` (6-8 px steps, wider than strokes) and finish with
-  `burnInMask(dc, min)` (blanks alternate rows, swapping each minute). Draw only the time,
-  thin and dim. Check it with Settings → Display Mode → Always-On in the simulator and
-  measure lit pixels from a screenshot.
+- **Always-on (sleep) mode or the watch shows its plain default face instead.** The FR165
+  (Venu 2 and later) enforces under 10% of screen *luminance*, and it may switch to
+  always-on **without calling `onEnterSleep`**: a face that only watches `onEnterSleep`
+  keeps drawing its full design, breaks the rule, and is replaced. Copy
+  `source/AlwaysOn.mc` and start `onUpdate` with `if (isLowPower(_sleeping))`, which also
+  checks `System.getDisplayMode()`. Faces with layers or animation must hide/stop them when
+  `onUpdate` detects low power (see Gargantua `setLowPower`). In always-on draw only the
+  time, thin and dim, nudge with `aodShift(min)` and finish with `burnInMask(dc, min)`.
+  Check with Settings → Display Mode → Always-On and back to High Power in the simulator,
+  then confirm on the watch: the simulator does not catch this one.
+- **Lock Device (hold LIGHT) shows Garmin's plain face** instead of our faces until
+  unlocked, even with the always-on fix. Faces get no lock signal and no API to draw the
+  locked screen: treat it as firmware behaviour, don't chase it in code.
 
 ## Connect IQ pitfalls (learned on a real FR165)
 
